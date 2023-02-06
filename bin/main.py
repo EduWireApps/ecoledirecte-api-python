@@ -104,8 +104,3 @@ class Eleve(Client):
         self.token = edt['token']
         return edt['data']
 
-
-
-
-
-
