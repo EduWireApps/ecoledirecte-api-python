@@ -105,8 +105,7 @@ class Eleve(Client):
         return edt['data']
 
 
-test = Eleve("PETRUCCI","EcoleDirecte20!")
-print(test.getRawEmploiDuTemps(date(2023,2,20)))
+
 
 
 
