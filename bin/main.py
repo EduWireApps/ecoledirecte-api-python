@@ -1,7 +1,7 @@
 from requests import post, Session
 import requests
 import json
-from datetime import datetime
+from datetime import date
 
 
 class Client:
@@ -73,7 +73,7 @@ class Eleve(Client):
         self.photo = self.user['profile']['photo']
         self.classe = self.user['profile']['classe']
 
-    def getRawNotes(self, anneeSco=None) -> dict:
+    def getRawNotes(self, anneeSco:int=None) -> dict:
         route = "eleves/" + str(self.id) + "/notes.awp"
         payload = 'data={"anneeScolaire": ""}'
         if anneeSco:
@@ -81,11 +81,32 @@ class Eleve(Client):
         r = self.raw_request(route,data=payload)
         return r.json()
 
-    def getRawEmploiDuTemps(self, dateDebut:datetime = None, dateFin:datetime= None) -> dict:
-        if not dateDebut or not dateFin:
-            dateDebut = datetime.now()
-            dateFin = datetime.now()
+
+    def getRawEmploiDuTemps(self, dateDebut:date = None, dateFin:date= None) -> dict:
+        if dateDebut and not dateFin:
+            dateDebut = dateDebut.isoformat()
+            dateFin = dateDebut
+        elif not dateDebut and dateFin:
+            dateDebut = date.today().isoformat()
+            dateFin = dateFin.isoformat()
+        elif not dateDebut and not dateFin:
+            dateDebut = date.today().isoformat()
+            dateFin = date.today().isoformat()
+        else:
+            dateDebut = dateDebut.isoformat()
+            dateFin = dateFin.isoformat()
         route = "E/" + str(self.id) + "/emploidutemps.awp"
-        payload = 'data={"dateDebut": "' + dateDebut.isoformat() + '","dateFin":"' + dateFin.isoformat() + '","avecTrous": false}'
+        payload = 'data={"dateDebut": "' + dateDebut + '","dateFin":"' + dateFin + '","avecTrous": false}'
         return self.raw_request(route, data=payload).json()
+
+    def getEmploiDuTemps(self, dateDebut:date = None, dateFin:date = None) -> list:
+        edt = self.getRawEmploiDuTemps(dateDebut,dateFin)
+        self.token = edt['token']
+        return edt['data']
+
+
+test = Eleve("PETRUCCI","EcoleDirecte20!")
+print(test.getRawEmploiDuTemps(date(2023,2,20)))
+
+
 
